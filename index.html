@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GROW Master Pro - Paul Rosado</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+        <!-- PANTALLA DE BIENVENIDA (SPLASH SCREEN) -->
+        <div id="splash-screen">
+            <!-- Primer Logo: Animación de entrada -->
+            <img src="img/Logo animado.png" id="splash-logo-1" class="logo-fade">
+            
+            <!-- Segundo Logo: Icono que precede al login (Icon.png) -->
+            <img src="img/icon.png" id="splash-logo-2" class="hidden">
+        </div>
+
+    <div id="login-view" class="modal">
+    <div class="modal-content login-box">
+        <h2 style="text-align: center; margin-bottom: 20px;">Acceso GROW Master</h2>
+        <div class="input-group">
+            <label>Usuario:</label>
+            <input type="text" id="login-user" placeholder="Ingresa tu usuario" onkeydown="saltarAContrasena(event)">
+        </div>
+        <div class="input-group">
+            <label>Contraseña:</label>
+            <input type="password" id="login-pass" placeholder="Ingresa tu clave" onkeydown="ejecutarIngreso(event)">
+        </div>
+        <button class="btn btn-primary" style="width: 100%; margin-top: 15px;" onclick="validarAcceso()">Ingresar</button>
+        <p id="login-error" style="color: red; font-size: 0.8rem; text-align: center; margin-top: 10px; display: none;">Credenciales incorrectas</p>
+        </div>
+        </div>
+        <div id="main-app-content" class="hidden">
+    </div>
+
+    <div id="app-container">
+        <header>
+            <div class="header-content">
+                <h1 style="font-size: 1.2rem; font-weight: 300; letter-spacing: 2px;">GROW CARDS DIGITAL</h1>
+                <div class="header-controls">
+                    <button id="toggle-voice" class="btn-icon-small" onclick="toggleVoice()" title="Activar/Desactivar Voz" style="background: none; border: none; cursor: pointer; font-size: 1.2rem;">
+                        <span id="voice-icon">🔊</span>
+                    </button>
+                    <div style="display: flex; gap: 15px; align-items: center;">
+                        <!-- NUEVO BOTÓN DE TEMA -->
+                        <button id="theme-toggle" class="btn-icon-small" onclick="toggleTheme()" style="background: none; border: none; cursor: pointer; font-size: 1.2rem;">
+                            <span id="theme-icon">🌙</span>
+                        </button>
+                    </div>
+
+                   <div class="language-dropdown">
+                        <button id="lang-btn" class="lang-main-btn" onclick="toggleLangMenu()">
+                            🌐 <span id="current-lang-text">Español</span>
+                        </button>
+                        <div id="lang-menu" class="lang-floating-menu hidden">
+                            <div class="lang-option" onclick="cambiarIdioma('es')">🇪🇸 Español</div>
+                            <div class="lang-option" onclick="cambiarIdioma('en')">🇺🇸 English</div>
+                            <div class="lang-option" onclick="cambiarIdioma('pt')">🇧🇷 Português</div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </header>
+
+        <main id="menu-view">
+            <div class="grid-mazos" id="grid-mazos"></div>
+        </main>
+
+        <main id="game-view" class="hidden">
+            <div class="game-header">
+                
+            <div class="progress-section">
+                <p id="progress-text" class="progress-message">Cargando progreso...</p>
+                <div class="progress-container">
+                    <div id="progress-bar" class="progress-bar"></div>
+                    
+                <div class="phase-indicator"><span id="phase-label">FASE: G</span></div>
+                </div>
+            </div>
+
+            <section class="centered-stage">
+                <div class="card" onclick="flipAndRead()">
+                    <div class="card-inner" id="card-inner">
+                        <div class="card-front" id="card-front">
+                            <h1 class="phase-letter" id="phase-letter">G</h1>
+                            <p id="mazo-active-label" class="mazo-tag"></p>
+                        </div>
+                        <div class="card-back">
+                            <p class="pregunta-text" id="question">...</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <footer class="controls-container">
+                <div class="main-actions">
+                    <button class="btn-back" onclick="showMenu()" id="btn-back" onmouseenter="leerEtiqueta(this)" ontouchstart="leerEtiqueta(this)">Regresar al Menú</button>
+                    <button class="btn btn-secondary" onclick="reproducirPregunta()" onmouseenter="leerEtiqueta(this)" ontouchstart="leerEtiqueta(this)">Re-leer</button>
+                    <button class="btn btn-answer" onclick="abrirModal()" onmouseenter="leerEtiqueta(this)" ontouchstart="leerEtiqueta(this)">Responder</button>
+                    <button class="btn btn-primary" id="btn-next-q" onclick="nextQuestion()" onmouseenter="leerEtiqueta(this)" ontouchstart="leerEtiqueta(this)">Otra Pregunta</button>
+                    <button class="btn btn-next" onclick="nextPhase()" onmouseenter="leerEtiqueta(this)" ontouchstart="leerEtiqueta(this)">
+    Siguiente Fase</button>
+                </div>
+            </footer>
+        </main>
+
+        <div id="modal-respuesta" class="modal hidden">
+            <div class="modal-content">
+                <h3 id="modal-title">Tu Respuesta</h3>
+                <p id="modal-question-text" style="font-style: italic; color: #666; margin: 10px 0;"></p>
+                <div class="input-container" style="position: relative;">
+                    <textarea id="user-text-answer" placeholder="Escribe aquí o usa el micrófono..."></textarea>
+                    <button id="btn-voice-input" onclick="activarDictado()" title="Dictar respuesta" onmouseenter="leerEtiqueta(this)" ontouchstart="leerEtiqueta(this)">🎤</button>
+                </div>
+                <div class="modal-actions">
+                    <button class="btn btn-secondary" onclick="cerrarModal()" onmouseenter="leerEtiqueta(this)" ontouchstart="leerEtiqueta(this)">Cancelar</button>
+                    <button class="btn btn-primary" onclick="guardarRespuesta()" onmouseenter="leerEtiqueta(this)" ontouchstart="leerEtiqueta(this)">Guardar</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="modal-finish" class="modal hidden">
+            <div class="modal-content">
+                <h3 id="finish-title" style="text-align: center; margin-bottom: 10px;">¡Sesión Completada!</h3>
+                <p id="finish-desc" style="text-align: center; color: #666; margin-bottom: 20px;">
+                    Has terminado el proceso.<br>
+                    ¿Qué deseas hacer con tus reflexiones?
+                </p>
+                <div class="modal-actions-vertical">
+            <button id="btn-export-pdf" class="btn btn-export" onclick="generarResumenPDF()" onmouseenter="leerEtiqueta(this)" ontouchstart="leerEtiqueta(this)">
+                Descargar PDF
+            </button>
+            <button id="btn-restart" class="btn btn-secondary" onclick="confirmarReinicioDesdeModal()" onmouseenter="leerEtiqueta(this)" ontouchstart="leerEtiqueta(this)">
+                Borrar y empezar de cero
+            </button>
+            <button id="btn-close-finish" class="btn-minimal-styled" onclick="cerrarModalFinish()" onmouseenter="leerEtiqueta(this)" ontouchstart="leerEtiqueta(this)">
+                Cerrar ventana
+            </button>
+        </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
