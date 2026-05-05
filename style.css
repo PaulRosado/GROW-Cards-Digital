@@ -1,0 +1,457 @@
+:root {
+    --bg-dark: #1a1c20;      /* Fondo principal */
+    --card-bg: #252830;      /* Fondo de tarjetas */
+    --accent-glow: #9b59b6;  /* Morado de tu logo */
+    --text-main: #e0e6ed;
+    --glass: rgba(255, 255, 255, 0.05);
+    --glass-border: rgba(255, 255, 255, 0.1);
+    --primary: #0c3474;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+    background: var(--bg-dark);
+    color: var(--text-main);
+}
+
+#app-container { display: flex; flex-direction: column; height: 100%; }
+header { background: transparent; padding: 15px 5%; box-shadow: none; }
+.header-content { display: flex; justify-content: space-between; align-items: center; max-width: 1200px; margin: 0 auto; }
+.header-controls { display: flex; gap: 15px; align-items: center; }
+.mazo-tag {color: #ffffff;} 
+.grid-mazos { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 25px; padding: 40px; max-width: 1100px; margin: 0 auto; }
+.card-selector {
+    border-radius: 20px; 
+    padding: 20px; 
+    text-align: center; 
+    cursor: pointer; 
+    transition: all 0.3s ease; 
+    box-shadow: 0 8px 15px rgba(0,0,0,0.3), inset 0 0 20px rgba(255,255,255,0.15); 
+    border: 2px solid rgba(255,255,255,0.1); 
+    display: flex; 
+    flex-direction: column; 
+    justify-content: center; 
+    align-items: center; 
+    aspect-ratio: 2.5 / 3.5; /* Proporción real de una carta de juego */
+}
+.card-selector:hover { transform: translateY(-10px) scale(1.02); box-shadow: 0 15px 25px rgba(0,0,0,0.4); border-color: rgba(255,255,255,0.5); }
+.selector-icon { font-size: 3.5rem; display: block; margin-bottom: 15px; filter: drop-shadow(2px 4px 6px rgba(0,0,0,0.3)); }
+.selector-title { font-weight: bold; font-size: 1.1rem; line-height: 1.2; text-shadow: 1px 1px 3px rgba(0,0,0,0.5); }
+
+#game-view {
+    display: flex;
+    flex-direction: column;
+    height: 100dvh;
+    justify-content: space-between;
+}
+
+/* Escenario de la carta */
+.centered-stage {
+    animation: slideUp 0.8s ease-out;
+    flex-grow: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+
+.card {
+    width: 80vw; /* 80% del ancho de la pantalla */
+    max-width: 300px; /* Pero no más de 300px */
+    height: 110vw; /* Proporción de la carta */
+    max-height: 400px;
+}
+
+/* Animación de entrada suave */
+@keyframes slideUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+
+.card-inner { position: relative; width: 100%; height: 100%; transition: transform 0.6s; transform-style: preserve-3d; }
+.is-flipped { transform: rotateY(180deg); }
+.card-front, .card-back { background: var(--card-bg); position: absolute; width: 100%; height: 100%; backface-visibility: hidden; border-radius: 25px; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 25px; box-shadow:0 10px 30px rgba(0,0,0,0.3),
+        inset 0 0 20px rgba(250, 250, 250, 0.02); /* Brillo interno sutil */ }
+.card-back { background: var(--white); transform: rotateY(180deg); font-size: 1.3rem; text-align: center; }
+.card-back p {
+    color: var(--text-main); /* Usará blanco en modo oscuro y oscuro en modo claro */
+}
+.phase-letter { font-size: 8rem; color: white; }
+.phase-indicator { padding: 12px 20px; border-radius: 10px; border: none; cursor: pointer; font-weight: bold; transition: 0.2s; color: #000000; }
+.btn-back { padding: 12px 20px; border-radius: 10px; border: none; cursor: pointer; font-weight: bold; transition: 0.2s; background: #000000; color: #ffffff; }
+
+/* Contenedor principal de controles centrado */
+.controls-container { 
+    padding: 20px; 
+    display: flex; 
+    justify-content: center; 
+    background: var(--bg-dark); 
+    border-top: none;
+    transition: background 0.3s ease; /* Para que el cambio sea suave */
+}
+/* Grupo de botones centrado y responsivo */
+.main-actions { 
+    display: flex; 
+    gap: 12px; 
+    flex-wrap: wrap; 
+    justify-content: center; 
+    max-width: 800px; /* Evita que se estiren demasiado en PC */
+    width: 100%;
+}
+
+/* Ajuste individual de botones para uniformidad */
+.btn { 
+    padding: 12px 24px; 
+    border-radius: 10px; 
+    border: none; 
+    cursor: pointer; 
+    font-weight: bold; 
+    transition: 0.2s;
+    min-width: 140px; /* Tamaño mínimo para que se vean parejos */
+    font-size: 0.95rem;
+}
+.btn-primary { 
+    background: var(--primary); 
+    color: white; 
+}
+.btn-answer { background: #9b59b6; color: white; }
+.btn-export { background: #27ae60; color: white; }
+.btn-secondary {
+    background: grey;
+    color: white;
+    border: 1px solid var(--glass-border);
+}
+.btn-next { background: #1725df; color: #ffffff; }
+.hidden { display: none !important; }
+
+
+/* Estilo del modal */
+.modal { position: fixed; inset: 0; background: rgba(0,0,0,0.6); display: flex; align-items: center; justify-content: center; z-index: 100; }
+.modal-content { background: white; padding: 25px; border-radius: 20px; width: 90%; max-width: 400px; position: relative; }
+.input-container { position: relative; }
+textarea { width: 100%; height: 120px; margin: 15px 0; padding: 10px; border-radius: 10px; border: 1px solid #ddd; resize: none; }
+#btn-voice-input { position: absolute; right: 10px; bottom: 25px; border: none; background: var(--primary); color: white; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; }
+
+
+/* Estilos para el botón de micrófono y su animación */
+#btn-voice-input {
+    position: absolute;
+    right: 10px;
+    bottom: 20px;
+    background: #3498db;
+    color: white;
+    border: none;
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 1.2rem;
+    transition: 0.3s;
+    z-index: 5;
+}
+
+#btn-voice-input.recording {
+    background: #e74c3c;
+    animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(231, 76, 60, 0.7); }
+    70% { transform: scale(1.1); box-shadow: 0 0 0 10px rgba(231, 76, 60, 0); }
+    100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(231, 76, 60, 0); }
+}
+
+/* Contenedor relativo para posicionar el micro */
+.input-container {
+    position: relative;
+    width: 100%;
+}
+
+.progress-section {
+    width: 90%;
+    max-width: 400px;
+    margin: 10px auto 20px auto; /* Aumentamos el margen inferior (20px) */
+    flex-shrink: 0; /* Evita que la barra se aplaste */
+}
+
+.progress-message {
+    font-size: 0.85rem;
+    font-weight: bold;
+    color: var(--text-main);
+    transition: color 0.3s ease;
+    margin-bottom: 5px;
+}
+
+.progress-container {
+    height: 8px;
+    background: #e0e0e0;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.progress-bar {
+    width: 25%; /* Empieza en G */
+    height: 100%;
+    background: linear-gradient(90deg, #b6bef3, #303d91, #b6bef3);
+    background-size: 200% 100%;
+    animation: flowGradient 3s linear infinite;
+    transition: width 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    border-radius: 20px;
+}
+
+@keyframes flowGradient {
+    0% { background-position: 0% 50%; }
+    100% { background-position: 200% 50%; }
+}
+
+/* === ADAPTACIÓN PARA MÓVILES (Dos columnas ordenadas) === */
+@media (max-width: 600px) {
+    .main-actions {
+        display: grid;
+        grid-template-columns: 1fr 1fr; /* Crea las dos columnas exactas */
+        gap: 10px;
+        padding: 0 10px;
+    }
+
+    .btn {
+        width: 100%; /* Ocupan todo el ancho de su celda en la cuadrícula */
+        min-width: unset;
+        padding: 15px 10px;
+        font-size: 0.9rem;
+    }
+}
+
+/* Estilos para el Login */
+.login-box {
+    max-width: 350px !important;
+    border: 1px solid #ddd;
+    box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+}
+
+.input-group {
+    margin-bottom: 15px;
+    text-align: left;
+}
+
+.input-group label {
+    display: block;
+    font-size: 0.9rem;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+.input-group input {
+    width: 100%;
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    color: #333;
+    font-size: 16px;
+}
+
+/* Asegúrate de que el contenido principal esté oculto al inicio */
+.hidden { display: none !important; }
+
+/* Ventana de Login que cubre toda la pantalla */
+#login-view {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100dvh;
+    /* Fondo gris opaco sólido para ocultar categorías */
+    background-color: #ffffff; 
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999; /* Asegura que esté por encima de todo */
+}
+
+/* Opcional: Si quieres un efecto más moderno tipo "vidrio esmerilado" 
+   pero que no deje ver el texto de las categorías */
+#login-view.blur-effect {
+    background: rgba(44, 62, 80, 0.98); 
+    backdrop-filter: blur(15px);
+}
+
+.login-box {
+    background: white;
+    padding: 30px 20px;
+    border-radius: 20px;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+    width: 90%;
+    max-width: 380px;
+    color: #333;
+}
+
+/* Resaltar la casilla cuando el usuario está escribiendo */
+.input-group input:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 8px rgba(52, 152, 219, 0.3);
+    outline: none;
+    background-color: #fff;
+}
+
+/* Contenedor de botones en columna para el modal final */
+.modal-actions-vertical {
+    display: flex;
+    flex-direction: column; /* Apila los botones uno sobre otro */
+    gap: 12px;             /* Espacio uniforme entre botones */
+    width: 100%;
+    align-items: center;    /* Centra los botones */
+}
+
+/* Forzar que los botones de acción midan lo mismo */
+.modal-actions-vertical .btn {
+    width: 100%;           /* Ocupan todo el ancho del modal */
+    max-width: 300px;      /* Pero con un límite para que no se vean gigantes */
+    padding: 15px;         /* Más cómodos para tocar en el celular */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+}
+
+/* Estilo mejorado para el botón "Cerrar" */
+.btn-minimal-styled {
+    background: none;
+    border: 1px solid #ccc;
+    color: #888;
+    padding: 10px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    margin-top: 10px;
+    transition: 0.3s;
+}
+
+.btn-minimal-styled:hover {
+    background-color: #f9f9f9;
+    color: #444;
+}
+
+/* --- VARIABLES DE TEMA CLARO --- */
+body.light-theme {
+    --bg-dark: #f4f7f6;        /* Gris muy claro o blanco hueso */
+    --card-bg: #ffffff;        /* Fondo de cartas blanco */
+    --text-main: #2c3e50;      /* Texto oscuro para contraste */
+    --glass: rgba(0, 0, 0, 0.05);
+    --glass-border: rgba(0, 0, 0, 0.1);
+}
+
+/* Ajustes específicos para que los elementos se vean bien en modo claro */
+body.light-theme .login-box,
+body.light-theme .modal-content,
+body.light-theme .card-back {
+    background: #ffffff;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+}
+
+body.light-theme header,
+body.light-theme .controls-container {
+    background: transparent;
+    border-color: rgba(0, 0, 0, 0.1);
+}
+
+/* Aseguramos que el degradado de la carta frontal se mantenga profesional */
+body.light-theme .card-front {
+    background: linear-gradient(135deg, var(--accent), #6a1b9a);
+}
+
+#toggle-voice, .btn-icon-small, select {
+    background: var(--glass) !important;
+    color: var(--text-main) !important;
+    border: 1px solid var(--glass-border) !important;
+    border-radius: 8px;
+    padding: 5px 10px;
+}
+
+#splash-screen {
+    position: fixed;
+    inset: 0;
+    background: #ffffff; /* Fondo oscuro premium */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 20000;
+}
+
+.logo-fade {
+    width: 90%;
+    max-width: 800px;
+    opacity: 0;
+    transform: scale(0.9);
+    animation: zoomInFade 5.5s forwards;
+}
+
+@keyframes zoomInFade {
+    0% { opacity: 0; transform: scale(0.8); }
+    50% { opacity: 1; transform: scale(1); }
+    100% { opacity: 0; transform: scale(1.1); }
+}
+
+#splash-logo-2 {
+    width: 60%;
+    max-width: 350px;
+    animation: fadeIn 1s forwards;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.hidden { display: none !important; }
+
+/* Contenedor relativo para posicionar el menú */
+.language-dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+/* Botón principal */
+.lang-main-btn {
+    background: var(--glass);
+    border: 1px solid var(--glass-border);
+    color: var(--text-main);
+    padding: 8px 15px;
+    border-radius: 12px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: 0.3s;
+}
+
+/* Ventana Flotante */
+.lang-floating-menu {
+    position: absolute;
+    top: 45px;
+    right: 0;
+    background: var(--card-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: 15px;
+    min-width: 140px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+    z-index: 5000;
+    overflow: hidden;
+    animation: fadeInDown 0.3s ease;
+}
+
+.lang-option {
+    padding: 12px 15px;
+    color: var(--text-main);
+    cursor: pointer;
+    transition: 0.2s;
+    font-size: 0.85rem;
+}
+
+.lang-option:hover {
+    background: var(--accent-glow);
+    color: white;
+}
+
+@keyframes fadeInDown {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
