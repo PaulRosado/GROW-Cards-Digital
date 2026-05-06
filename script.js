@@ -1,6 +1,6 @@
 // === 1. CONFIGURACIÓN E INTERFAZ ===
 // Asegúrate de que tu clave esté bien pegada entre las comillas
-const GEMINI_API_KEY = "AIzaSyCYWQUbEDHVQ8LUIpRZRJZnpqqkOZdI1fw";
+const GEMINI_API_KEY = "AIzaSyCQe-tMyqsdHJ52EJJjyNj5_WQpzpP8x6o";
 
 // Esta es la URL correcta para el modelo más reciente (Gemini 2.0 Flash)
 const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`;
