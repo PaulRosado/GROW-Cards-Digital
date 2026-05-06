@@ -744,7 +744,7 @@ function validarAcceso() {
     const pass = document.getElementById('login-pass').value.trim();
     
     // Credenciales (Asegúrate que coincidan con lo que quieres)
-    if (user === "prosado" && pass === "Abel0122") {
+    if (user === "crecimiento" && pass === "crecimiento") {
         document.getElementById('login-view').style.display = 'none';
         document.getElementById('app-container').classList.remove('hidden');
         hablar("Bienvenido al sistema GROW.");
